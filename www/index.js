@@ -1,22 +1,30 @@
 var app = require("express")();
 var http = require("http").Server(app);
-var socket_io = require("socket.io")(http);
+var server = require("socket.io")(http);
 
 app.get("/", function(request, response){
 	response.sendFile(__dirname + "/webpage/index.html");
 });
 
-socket_io.on("connection", function(socket){
-	console.log("a user connected");
-	socket.broadcast.emit('hi');
-	
-	socket.on("disconnect", function(disconnect){
-		console.log("a user disconnected");
+server.on("connection", function(client){
+
+	client.on("join", function(name){
+		client.nickname = name;
+		console.log(client.nickname + " joined");
+		client.broadcast.emit("chat message", client.nickname + " has joined.");
+		client.emit("chat message", client.nickname + " has joined.");
+		
 	});
 	
-	socket.on("chat message", function(message){
-		console.log("message: " + message);
-		socket_io.emit("chat message", message);
+	client.on("disconnect", function(disconnect){
+		console.log(client.nickname + " disconnected");
+	});
+	
+	client.on("chat message", function(message){
+		console.log(client.nickname + ": " + message);
+		client.broadcast.emit("chat message", client.nickname + ": " + message);
+		client.emit("chat message", client.nickname + ": " + message);
+		
 	});
 	
 	
