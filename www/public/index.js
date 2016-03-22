@@ -1,12 +1,15 @@
-var app = require("express")();
+var express = require("express");
+var app = express();
 var http = require("http").Server(app);
 var server = require("socket.io")(http);
 
-app.get("/", function(request, response){
-	response.sendFile(__dirname + "/webpage/index.html");
+app.use(express.static(__dirname + "/client/"));
+app.use(express.static(__dirname + "/server/"));
+app.get("/", function(request, response){	
+	response.sendFile(__dirname + "/client/webpage/index.html");
 });
 
-server.on("connection", function(client){
+/* server.on("connection", function(client){
 
 	client.on("join", function(name){
 		client.nickname = name;
@@ -29,7 +32,7 @@ server.on("connection", function(client){
 	
 	
 });
-
+ */
 http.listen(3000, function(){
 	console.log("listening on *:3000");
 });
